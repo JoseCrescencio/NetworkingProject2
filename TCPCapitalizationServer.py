@@ -5,12 +5,10 @@
 from socket import *
 import threading
 
-# Global variables to store data
+# Global variables to share data across threads
 connections = 0
-response = "Error"
-ack = "Sent acknowledgment to both X and Y"
-x = ""
-y = ""
+arrived = 0
+response = ""
 
 # Variables used for concurency control
 lock = threading.Lock()
@@ -20,19 +18,19 @@ doneMessage = threading.Event()
 def processData():
     # Specifying the scope of variables as global
     global response
+    global arrived
     global connections
-    global x
-    global y
-    global done
-    global ack
+    global canReceieve
+    global doneMessage
     
     # Continuously listening for new connections
     while True:
         # Clear variables
+        lock.acquire()
         canReceieve.clear()
         doneMessage.clear()
-        x = ""
-        y = ""
+        response = ""
+        lock.release()
         
         # Wait for connection attempt
         connectionSocket, addr = serverSocket.accept()
@@ -56,24 +54,23 @@ def processData():
         sentence = connectionSocket.recv(1024).decode()
         print sentence
         
-        # Store seperate messages in different threads
-        if threading.current_thread().name == 't1':
-            x = sentence[7:]
-        if threading.current_thread().name == 't2':
-            y = sentence[7:]
+        lock.acquire()
+        response += sentence[7:]
+        arrived += 1
+        print arrived
+        if response.find('received before') == -1:
+            response += " received before "
+        lock.release()
         
         # Wait for both messages to arrive
-        if x != "" and y != "":
-            doneMessage.set()
-        doneMessage.wait()
+        while arrived != 2:
+            print "Arrived: %d" % (arrived)
+            print threading.current_thread().name + " is stuck here"
+            doneMessage.wait()
+
+        print threading.current_thread().name + " is out of loop here"
+
         doneMessage.set()
-
-
-        lock.acquire()
-        response = "%s received before %s" % (x,y)
-        connectionSocket.send(ack.encode())
-
-        lock.release()
 
         # Ensure that response is only displayed once
         if threading.current_thread().name == 't1':
@@ -81,11 +78,11 @@ def processData():
         
     
         connectionSocket.send(response.encode())
-        connectionSocket.send(ack.encode())
         connectionSocket.close()
 
         lock.acquire()
         connections -= 1
+        arrived -= 1
         lock.release()
 
 if __name__ == "__main__":

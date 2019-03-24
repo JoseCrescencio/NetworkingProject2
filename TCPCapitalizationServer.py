@@ -57,24 +57,19 @@ def processData():
         lock.acquire()
         response += sentence[7:]
         arrived += 1
-        print arrived
         if response.find('received before') == -1:
             response += " received before "
         lock.release()
         
         # Wait for both messages to arrive
-        while arrived != 2:
-            print "Arrived: %d" % (arrived)
-            print threading.current_thread().name + " is stuck here"
+        if arrived != 2:
             doneMessage.wait()
-
-        print threading.current_thread().name + " is out of loop here"
 
         doneMessage.set()
 
         # Ensure that response is only displayed once
-        if threading.current_thread().name == 't1':
-            print response
+#        if threading.current_thread().name == 't1':
+        print response
         
     
         connectionSocket.send(response.encode())

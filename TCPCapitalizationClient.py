@@ -10,8 +10,7 @@ import random
 #Setting server name/port and a random integer to send the packets randomly
 serverName = 'localhost'
 serverPort = 12000
-r1 = random.randint(0,10)
-isFirstX = 0
+r1 = random.randint(0,9)
 
 #Sockets are set for both packets
 clientSocket1 = socket(AF_INET, SOCK_STREAM)
@@ -27,26 +26,29 @@ sentenceY = "Client Y: Bob"
 
 #Sending packets in random order
 if r1%2 == 0:
-    isFirstX = 1
     clientSocket1.send(sentenceX.encode())
     clientSocket2.send(sentenceY.encode())
+
+    #print statment for message received by server
+    print sentenceX + "\n"
+    print sentenceY + "\n"
+
 else:
-    isFirstX = 0
     clientSocket2.send(sentenceY.encode())
     clientSocket1.send(sentenceX.encode())
+
+    #print statment for message received by server
+    print sentenceY + "\n"
+    print sentenceX + "\n"
 
 #Receiving a message
 modifiedSentenceX = clientSocket1.recv(1024).decode()
 modifiedSentenceY = clientSocket2.recv(1024).decode()
 
-#print statment for message received by server
-print sentenceX + "\n"
-print sentenceY + "\n"
-
-if(isFirstX == 1):
-    print modifiedSentenceX + "\n"
+if modifiedSentenceY == "":
+    print modifiedSentenceX
 else:
-    print modifiedSentenceY + "\n"
+    print modifiedSentenceY
 
 #Closing the connection
 clientSocket1.close()

@@ -8,6 +8,7 @@ import threading
 # Global variables to store data
 connections = 0
 response = "Error"
+ack = "Sent acknowledgment to both X and Y"
 x = ""
 y = ""
 
@@ -23,6 +24,7 @@ def processData():
     global x
     global y
     global done
+    global ack
     
     # Continuously listening for new connections
     while True:
@@ -69,13 +71,17 @@ def processData():
 
         lock.acquire()
         response = "%s received before %s" % (x,y)
+        connectionSocket.send(ack.encode())
+
         lock.release()
 
         # Ensure that response is only displayed once
         if threading.current_thread().name == 't1':
             print response
         
+    
         connectionSocket.send(response.encode())
+        connectionSocket.send(ack.encode())
         connectionSocket.close()
 
         lock.acquire()
@@ -91,7 +97,7 @@ if __name__ == "__main__":
     # Assign IP address and port number to socket
     serverSocket.bind(('',serverPort))
     serverSocket.listen(1)
-    print('The server is ready to recieve')
+    print('The server is ready to receive')
     
     # Initialize two threads
     t1 = threading.Thread(target = processData, name = 't1')
@@ -102,3 +108,4 @@ if __name__ == "__main__":
     
     t1.join()
     t2.join()
+    

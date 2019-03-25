@@ -1,4 +1,4 @@
-#File Name: TCPCapitalizationClient.py
+#File Name: PA2Client_Crescencio_Ramirez.py
 #Author(s): Jose Cresencio, Judith Ramirez
 #Date: March 24,2019
 #Description: This is a client file connecting to the server via TCP

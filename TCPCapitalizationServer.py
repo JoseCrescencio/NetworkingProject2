@@ -2,6 +2,11 @@
 # Since python is run from top to bottom, it cannot run the same code at the same time during regular execution.
 # Threads allow one to duplicate execution of code thus simulating two different sockets for the same port.
 
+#File Name: PA2Server_Crescencio_Ramirez.py
+#Author(s): Jose Cresencio, Judith Ramirez
+#Date: March 24,2019
+#Description: This is a Server file that accepts 2 connections and determines which message is recieved first
+
 from socket import *
 import threading
 
